@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 class UserOut(BaseModel):
@@ -10,3 +10,9 @@ class PostOut(BaseModel):
     content: str
     created_at: datetime
     user: UserOut
+
+class PostCreate(BaseModel):
+    # Field => 규칙 넣기
+    content: str = Field(min_length=1, max_length=500)
+    user_id: int
+

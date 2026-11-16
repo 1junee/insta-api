@@ -16,3 +16,5 @@ class PostCreate(BaseModel):
     content: str = Field(min_length=1, max_length=500)
     user_id: int
 
+class PostUpdate(BaseModel):
+    content: str = Field(min_length=1, max_length=500)

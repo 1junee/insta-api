@@ -4,7 +4,7 @@ from sqlalchemy import select
 from models import Post
 from schemas import PostOut, PostCreate, PostUpdate
 
-router = APIRouter(prefix='/api/posts')
+router = APIRouter(prefix='/api/posts', tags=['posts'])
 
 # '' 안에 /api/posts 가 들어있다고 생각?
 @router.get('', response_model=list[PostOut])

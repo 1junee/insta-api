@@ -1,5 +1,5 @@
-from fastapi import APIRouter
-from deps import SessionDep, PostDep
+from fastapi import APIRouter, HTTPException
+from deps import SessionDep, PostDep, CurrentUserDep
 from sqlalchemy import select
 from models import Post
 from schemas import PostOut, PostCreate, PostUpdate
@@ -24,21 +24,34 @@ def post_detail(post: PostDep):
 
 
 @router.post('', response_model=PostOut, status_code=201)
-def post_create(data: PostCreate, db: SessionDep):
-    post = Post(content=data.content, user_id=data.user_id)
+def post_create(data: PostCreate, db: SessionDep, user: CurrentUserDep):
+    post = Post(content=data.content, user_id=user.id)
     db.add(post)
     db.commit()
     return post
 
 
 @router.patch('/{post_id}', response_model=PostOut)
-def post_update(post: PostDep, data: PostUpdate, db: SessionDep):
+def post_update(post: PostDep, data: PostUpdate, db: SessionDep, user: CurrentUserDep):
+    if post.user_id != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail='본인의 게시글만 수정할 수 있습니다.',
+        )
+
     post.content = data.content
     db.commit()
     return post
 
+
 @router.delete('/{post_id}', status_code=204)
-def post_delete(post: PostDep, db: SessionDep):
+def post_delete(post: PostDep, db: SessionDep, user: CurrentUserDep):
+    if post.user_id != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail='본인의 게시글만 삭제할 수 있습니다.',
+        )
+
     db.delete(post)
     db.commit()
     return

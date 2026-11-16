@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 from database import engine
 from models import Post
+import jwt
+from datetime import datetime, timedelta, timezone
 
 
 password_hash = PasswordHash.recommended()
@@ -22,3 +24,13 @@ def get_post_or_404(post_id: int, db: SessionDep):
     return post
 
 PostDep = Annotated[Post, Depends(get_post_or_404)]
+
+
+SECRETE_KEY = 'dev-secret2'
+ALGORITHM = 'HS256'
+
+def create_access_token(user_id: int):
+    exp = datetime.now(timezone.utc) + timedelta(minutes=30)
+    token = jwt.encode({'sub': str(user_id), 'exp': exp}, SECRETE_KEY, algorithm=ALGORITHM)
+
+    return token

@@ -22,3 +22,8 @@ class PostCreate(BaseModel):
 
 class PostUpdate(BaseModel):
     content: str = Field(min_length=1, max_length=500)
+
+class Token(BaseModel):
+    access_token: str
+    # refresh_token: access_token을 재발행하기 위한?
+    token_type: str

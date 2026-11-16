@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from deps import SessionDep
+from deps import SessionDep, PostDep
 from sqlalchemy import select
 from models import Post
 from schemas import PostOut
@@ -17,3 +17,7 @@ def post_list(db: SessionDep):
     return posts
 
 
+@router.get('/{post_id}', response_model=PostOut)
+def post_detail(post: PostDep):
+    # post = db.get(Post, post_id) => deps.py로 분리
+    return post

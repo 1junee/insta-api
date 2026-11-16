@@ -3,9 +3,10 @@ from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
 from typing import Annotated
 from database import engine
-from models import Post
+from models import Post, User
 import jwt
 from datetime import datetime, timedelta, timezone
+from fastapi.security import OAuth2PasswordBearer
 
 
 password_hash = PasswordHash.recommended()
@@ -34,3 +35,18 @@ def create_access_token(user_id: int):
     token = jwt.encode({'sub': str(user_id), 'exp': exp}, SECRETE_KEY, algorithm=ALGORITHM)
 
     return token
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/auth/login')
+
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: SessionDep):
+    try:
+        payload = jwt.decode(token, SECRETE_KEY, algorithms=[ALGORITHM])
+    except:
+        raise HTTPException(status_code=401, detail='토큰이 올바르지 않습니다.')
+
+    user = db.get(User, int(payload['sub']))
+
+    return user
+
+CurrentUserDep = Annotated[User, Depends(get_current_user)]

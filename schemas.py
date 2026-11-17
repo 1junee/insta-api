@@ -31,6 +31,7 @@ class PostCreate(BaseModel):
     # Field => 규칙 넣기
     content: str = Field(min_length=1, max_length=500)
     # user_id: int
+    image_url: str | None = None
 
 class PostUpdate(BaseModel):
     content: str = Field(min_length=1, max_length=500)

@@ -7,6 +7,7 @@ from models import Post, User
 import jwt
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordBearer
+from config import settings
 
 
 password_hash = PasswordHash.recommended()
@@ -26,8 +27,7 @@ def get_post_or_404(post_id: int, db: SessionDep):
 
 PostDep = Annotated[Post, Depends(get_post_or_404)]
 
-
-SECRETE_KEY = 'dev-secret2'
+SECRETE_KEY = settings.SECRET_KEY
 ALGORITHM = 'HS256'
 
 def create_access_token(user_id: int):
@@ -40,12 +40,14 @@ def create_access_token(user_id: int):
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/auth/login')
 
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: SessionDep):
+    # sub가 없거나(KeyError) 숫자가 아니어도(ValueError) 잘못된 토큰으로 본다
     try:
         payload = jwt.decode(token, SECRETE_KEY, algorithms=[ALGORITHM])
-    except:
+        user_id = int(payload['sub'])
+    except (jwt.InvalidTokenError, KeyError, ValueError):
         raise HTTPException(status_code=401, detail='토큰이 올바르지 않습니다.', headers={'WWW-Authenticate': 'Bearer'})
 
-    user = db.get(User, int(payload['sub']))
+    user = db.get(User, user_id)
 
     if user is None:
        raise HTTPException(status_code=401, detail='없는 사용자입니다.', headers={'WWW-Authenticate': 'Bearer'})

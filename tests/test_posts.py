@@ -46,7 +46,13 @@ def test_post_create_and_delete():
     assert res.status_code == 201
     post_id = res.json()['id']
 
-    res = client.delete(f'/api/posts/{post_id}', headers=login('bob', 'pw1234'))
-    assert res.status_code == 204
+    try:
+        # 작성자가 로그인한 본인으로 저장됐는지
+        assert res.json()['content'] == 'hello'
+        assert res.json()['user']['username'] == 'bob'
+    finally:
+        # 중간에 assert가 실패해도 테스트로 만든 글은 지운다
+        res = client.delete(f'/api/posts/{post_id}', headers=login('bob', 'pw1234'))
+        assert res.status_code == 204
     assert client.get(f'/api/posts/{post_id}').status_code == 404
 

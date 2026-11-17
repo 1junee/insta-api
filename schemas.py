@@ -12,12 +12,19 @@ class UserCreate(BaseModel):
 class LikeOut(BaseModel):
     user_id: int
 
+class CommentOut(BaseModel):
+    id: int
+    content: str
+    created_at: datetime
+    user: UserOut
+
 class PostOut(BaseModel):
     id: int
     content: str
     created_at: datetime
     user: UserOut
     likes: list[LikeOut]
+    # comments: list[CommentOut]
 
 class PostCreate(BaseModel):
     # Field => 규칙 넣기
@@ -31,3 +38,9 @@ class Token(BaseModel):
     access_token: str
     # refresh_token: access_token을 재발행하기 위한?
     token_type: str
+
+class CommentCreate(BaseModel):
+    content: str = Field(min_length=1, max_length=100)
+
+class CommentUpdate(BaseModel):
+    content: str = Field(min_length=1, max_length=500)

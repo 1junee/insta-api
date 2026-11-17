@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from fastapi.testclient import TestClient
 
-from deps import ALGORITHM, SECRETE_KEY
+from deps import ALGORITHM, SECRET_KEY
 from main import app
 
 
@@ -116,7 +116,7 @@ def test_me_wrong_signature_401():
 # 8. 만료된 토큰으로 /api/auth/me를 부르면 401
 def test_me_expired_token_401():
     exp = datetime.now(timezone.utc) - timedelta(minutes=1)
-    token = jwt.encode({'sub': str(alice_id()), 'exp': exp}, SECRETE_KEY, algorithm=ALGORITHM)
+    token = jwt.encode({'sub': str(alice_id()), 'exp': exp}, SECRET_KEY, algorithm=ALGORITHM)
 
     res = client.get('/api/auth/me', headers={'Authorization': f'Bearer {token}'})
     assert res.status_code == 401
@@ -181,7 +181,7 @@ def test_me_garbage_token_401():
 
 def test_me_token_without_sub_401():
     exp = datetime.now(timezone.utc) + timedelta(minutes=30)
-    token = jwt.encode({'exp': exp}, SECRETE_KEY, algorithm=ALGORITHM)
+    token = jwt.encode({'exp': exp}, SECRET_KEY, algorithm=ALGORITHM)
 
     res = me_with_token(token)
     assert res.status_code == 401
@@ -190,7 +190,7 @@ def test_me_token_without_sub_401():
 
 def test_me_token_with_non_numeric_sub_401():
     exp = datetime.now(timezone.utc) + timedelta(minutes=30)
-    token = jwt.encode({'sub': 'abc', 'exp': exp}, SECRETE_KEY, algorithm=ALGORITHM)
+    token = jwt.encode({'sub': 'abc', 'exp': exp}, SECRET_KEY, algorithm=ALGORITHM)
 
     res = me_with_token(token)
     assert res.status_code == 401
@@ -199,7 +199,7 @@ def test_me_token_with_non_numeric_sub_401():
 
 def test_me_token_of_unknown_user_401():
     exp = datetime.now(timezone.utc) + timedelta(minutes=30)
-    token = jwt.encode({'sub': '999999999', 'exp': exp}, SECRETE_KEY, algorithm=ALGORITHM)
+    token = jwt.encode({'sub': '999999999', 'exp': exp}, SECRET_KEY, algorithm=ALGORITHM)
 
     res = me_with_token(token)
     assert res.status_code == 401

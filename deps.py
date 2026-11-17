@@ -27,12 +27,12 @@ def get_post_or_404(post_id: int, db: SessionDep):
 
 PostDep = Annotated[Post, Depends(get_post_or_404)]
 
-SECRETE_KEY = settings.SECRET_KEY
+SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = 'HS256'
 
 def create_access_token(user_id: int):
     exp = datetime.now(timezone.utc) + timedelta(minutes=30)
-    token = jwt.encode({'sub': str(user_id), 'exp': exp}, SECRETE_KEY, algorithm=ALGORITHM)
+    token = jwt.encode({'sub': str(user_id), 'exp': exp}, SECRET_KEY, algorithm=ALGORITHM)
 
     return token
 
@@ -42,7 +42,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/auth/login')
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: SessionDep):
     # sub가 없거나(KeyError) 숫자가 아니어도(ValueError) 잘못된 토큰으로 본다
     try:
-        payload = jwt.decode(token, SECRETE_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = int(payload['sub'])
     except (jwt.InvalidTokenError, KeyError, ValueError):
         raise HTTPException(status_code=401, detail='토큰이 올바르지 않습니다.', headers={'WWW-Authenticate': 'Bearer'})

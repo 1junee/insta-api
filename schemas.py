@@ -9,11 +9,15 @@ class UserCreate(BaseModel):
     username: str = Field(min_length=3, max_length=20)
     password: str = Field(min_length=4)
 
+class LikeOut(BaseModel):
+    user_id: int
+
 class PostOut(BaseModel):
     id: int
     content: str
     created_at: datetime
     user: UserOut
+    likes: list[LikeOut]
 
 class PostCreate(BaseModel):
     # Field => 규칙 넣기

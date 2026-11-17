@@ -43,9 +43,12 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: SessionD
     try:
         payload = jwt.decode(token, SECRETE_KEY, algorithms=[ALGORITHM])
     except:
-        raise HTTPException(status_code=401, detail='토큰이 올바르지 않습니다.')
+        raise HTTPException(status_code=401, detail='토큰이 올바르지 않습니다.', headers={'WWW-Authenticate': 'Bearer'})
 
     user = db.get(User, int(payload['sub']))
+
+    if user is None:
+       raise HTTPException(status_code=401, detail='없는 사용자입니다.', headers={'WWW-Authenticate': 'Bearer'})
 
     return user
 

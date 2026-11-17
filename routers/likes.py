@@ -5,7 +5,7 @@ from schemas import PostOut
 
 router = APIRouter(prefix='/api/posts/{post_id}/likes', tags=['likes'])
 
-@router.post('', response_model=PostOut)
+@router.post('', response_model=PostOut, status_code=201)
 def like_create(post: PostDep, user: CurrentUserDep, db: SessionDep):
     if db.get(Like, (user.id, post.id)):
         raise HTTPException(status_code=409, detail='이미 좋아요를 눌렀습니다.')
